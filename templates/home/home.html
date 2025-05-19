@@ -1,0 +1,158 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<div class="container mt-4">
+  <!-- Вітальний блок -->
+  <div class="jumbotron bg-light p-4 rounded shadow-sm">
+    <h1 class="display-4">Ласкаво просимо до системи управління бізнесом!</h1>
+    <p class="lead">Ця система автоматизує основні бізнес-процеси, допомагає контролювати кількість клієнтів, замовлень, співробітників та забезпечує аналітику в режимі реального часу.</p>
+    <hr class="my-4">
+    <p>Оновлюйте дані, слідкуйте за сповіщеннями, керуйте ресурсами – все в одному місці.</p>
+  </div>
+
+  <!-- Інформаційні картки -->
+  <div class="row">
+    <!-- Картка клієнтів -->
+    <div class="col-md-3">
+      <div class="card text-white bg-primary mb-3">
+        <div class="card-header">Клієнти</div>
+        <div class="card-body">
+          <h5 class="card-title">{{ total_customers }}</h5>
+          <p class="card-text">Активних клієнтів</p>
+          <a href="{% url 'customer-list' %}" class="btn btn-light btn-sm">Перейти</a>
+        </div>
+      </div>
+    </div>
+    <!-- Картка продуктів -->
+    <div class="col-md-3">
+      <div class="card text-white bg-success mb-3">
+        <div class="card-header">Продукти</div>
+        <div class="card-body">
+          <h5 class="card-title">{{ total_products }}</h5>
+          <p class="card-text">Доступних товарів</p>
+          <a href="{% url 'product-list' %}" class="btn btn-light btn-sm">Перейти</a>
+        </div>
+      </div>
+    </div>
+    <!-- Картка замовлень -->
+    <div class="col-md-3">
+      <div class="card text-white bg-warning mb-3">
+        <div class="card-header">Замовлення</div>
+        <div class="card-body">
+          <h5 class="card-title">{{ total_orders }}</h5>
+          <p class="card-text">Незавершених замовлень</p>
+          <a href="{% url 'order-list' %}" class="btn btn-light btn-sm">Перейти</a>
+        </div>
+      </div>
+    </div>
+    <!-- Картка співробітників -->
+    <div class="col-md-3">
+      <div class="card text-white bg-danger mb-3">
+        <div class="card-header">Співробітники</div>
+        <div class="card-body">
+          <h5 class="card-title">{{ total_employees }}</h5>
+          <p class="card-text">Активних співробітників</p>
+          <a href="{% url 'employee-list' %}" class="btn btn-light btn-sm">Перейти</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Останні події / сповіщення -->
+  <div class="row">
+    <div class="col-md-6">
+      <div class="card mb-3">
+        <div class="card-header">Останні замовлення</div>
+        <ul class="list-group list-group-flush">
+          {% for order in latest_orders %}
+          <li class="list-group-item">
+            Замовлення #{{ order.id }} від {{ order.order_date|date:"d-m-Y" }} – клієнт: {{ order.customer }}
+          </li>
+          {% empty %}
+          <li class="list-group-item">Немає нових замовлень</li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+
+    <div class="col-md-6">
+      <div class="card mb-3">
+        <div class="card-header">Сповіщення</div>
+        <div class="card-body">
+          <!-- Приклад інтерактивного блоку сповіщень -->
+          <p>Система повідомляє: Наразі немає критичних подій!</p>
+          <!-- Можна інтегрувати AJAX-запити для динамічного оновлення -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Графічна частина: Аналітична діаграма -->
+  <div class="row">
+    <div class="col-md-12">
+      <div class="card mb-3">
+        <div class="card-header">Аналітика продажів</div>
+        <div class="card-body">
+          <canvas id="analyticsChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Віджет календаря -->
+  <div class="row">
+    <div class="col-md-12">
+      <div class="card mb-3">
+        <div class="card-header">Календар завдань</div>
+        <div class="card-body">
+          <!-- Вбудований календар або інтеграція FullCalendar.js -->
+          <div id="calendar"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Підключення Chart.js для аналітики -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function(){
+  var ctx = document.getElementById("analyticsChart").getContext('2d');
+  var analyticsChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: {{ chart_labels|safe }},  // Передаємо з контексту шаблону
+      datasets: [{
+        label: 'Продажі',
+        data: {{ chart_data|safe }},
+        backgroundColor: 'rgba(54, 162, 235, 0.2)',
+        borderColor: 'rgba(54, 162, 235, 1)',
+        borderWidth: 1,
+        fill: true,
+      }]
+    },
+    options: {
+      scales: { 
+        y: { beginAtZero: true }
+      }
+    }
+  });
+});
+</script>
+
+<!-- Підключення FullCalendar.js для календаря (опціонально) -->
+<link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.0/main.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.0/main.min.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  var calendarEl = document.getElementById('calendar');
+  var calendar = new FullCalendar.Calendar(calendarEl, {
+    initialView: 'dayGridMonth',
+    events: {{ calendar_events|safe }}  // Можна передати список подій з контексту
+  });
+  calendar.render();
+});
+</script>
+{% endblock %}

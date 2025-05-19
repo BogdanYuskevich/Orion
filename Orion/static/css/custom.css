@@ -1,0 +1,86 @@
+/* custom.css */
+
+/* Загальні налаштування сторінки */
+body {
+    font-family: 'Arial', sans-serif;
+    font-size: 16px;
+    background-color: #f8f9fa; /* Світло-сірий фон */
+    color: #343a40;
+    margin: 0;
+    padding: 0;
+}
+
+/* Навігаційна панель */
+.navbar {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    /* Ви можете додати нижню рамку чи змінити кольори */
+}
+
+.navbar-brand, .navbar-nav .nav-link {
+    font-weight: bold;
+    font-size: 1.1rem;
+}
+
+/* Кнопки у навбари */
+.navbar-nav .btn {
+    margin-left: 5px;
+}
+
+/* Основний контейнер */
+.container {
+    margin-top: 30px;
+}
+
+/* Таблиці */
+.table-hover tbody tr:hover {
+    background-color: #e2e6ea;
+}
+
+/* Додаткові стилі для кнопок */
+.btn-custom {
+    background-color: #007bff;
+    border: none;
+    color: white;
+    padding: 8px 16px;
+}
+
+.btn-custom:hover {
+    background-color: #0056b3;
+}
+
+/* Стилі для flash-повідомлень (alerts) */
+.alert {
+    font-size: 1rem;
+    margin-top: 15px;
+}
+
+/* Footer */
+.footer {
+    background-color: #e9ecef;
+    padding: 15px 0;
+    font-size: 0.9rem;
+    text-align: center;
+}
+
+/* Модальні вікна */
+.modal-header {
+    background-color: #007bff;
+    color: white;
+}
+
+.modal-header .close {
+    color: white;
+}
+
+/* Додаткові стилі для посилань-сортування */
+a.sort-link {
+    color: inherit;
+    text-decoration: none;
+}
+
+a.sort-link:hover {
+    color: #0056b3;
+    text-decoration: underline;
+}
+
+/* Можна додати свої власні класи для inline-редагування, AJAX-завантаження або інших інтерактивних елементів */
