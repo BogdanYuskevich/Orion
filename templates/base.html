@@ -1,10 +1,145 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="uk">
 <head>
   <meta charset="UTF-8">
-  <title>$Title$</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Business Management System</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  {% block extra_css %}{% endblock %}
+  {% block extra_scripts %}{% endblock %}
+  <style>
+    /* Загальні стилі */
+    #wrapper {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* Ліва бокова панель */
+    #sidebar-wrapper {
+      min-width: 240px;
+      background-color: #343a40;
+      padding-top: 20px;
+      transition: margin-left 0.3s ease;
+    }
+    #sidebar-wrapper .sidebar-heading a {
+      color: #fff;
+      font-size: 1.5rem;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    #sidebar-wrapper .list-group a {
+      color: #fff;
+      font-size: 1.2rem;
+      padding: 12px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background-color: #495057;
+      border: 1px solid #6c757d;
+      transition: background-color 0.2s ease;
+    }
+    #sidebar-wrapper .list-group a:hover {
+      background-color: #6c757d;
+    }
+
+    /* Основний контент */
+    #page-content-wrapper {
+      flex: 1;
+      padding: 20px;
+      transition: margin-left 0.3s ease;
+    }
+
+    /* Кнопка Toggle Menu */
+    #toggle-menu-btn {
+      font-size: 1.2rem;
+      background-color: #6c757d;
+      color: #fff;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: transform 0.3s ease, background-color 0.2s ease;
+    }
+
+
+
+    /* Приховане меню */
+    .toggled #sidebar-wrapper {
+      margin-left: -240px;
+    }
+
+    /* Контейнер для верхньої панелі */
+    .top-nav {
+      display: flex;
+      align-items: center;
+      padding: 10px 15px;
+      background-color: #f8f9fa;
+      border-bottom: 1px solid #ddd;
+    }
+  </style>
 </head>
 <body>
-$END$
+  <div id="wrapper">
+    <!-- Ліва бокова панель -->
+    <nav id="sidebar-wrapper" class="p-3">
+  <div class="sidebar-heading text-center mb-4">
+    <a href="{% url 'home' %}">Orion</a>
+  </div>
+  <div class="list-group list-group-flush">
+    <a href="{% url 'customer-list' %}" class="list-group-item">
+      <i class="fas fa-users"></i> Клієнти
+    </a>
+    <a href="{% url 'product-list' %}" class="list-group-item">
+      <i class="fas fa-box"></i> Продукти
+    </a>
+    <a href="{% url 'order-list' %}" class="list-group-item">
+      <i class="fas fa-shopping-cart"></i> Замовлення
+    </a>
+    <a href="{% url 'employee-list' %}" class="list-group-item">
+      <i class="fas fa-user-tie"></i> Співробітники
+    </a>
+  </div>
+
+  {% if user.is_authenticated %}
+  <a href="{% url 'logout' %}" class="btn btn-danger">Вийти</a>
+{% else %}
+  <a href="{% url 'login' %}" class="btn btn-success">Увійти</a>
+{% endif %}
+
+</nav>
+
+    <!-- Основна область контенту -->
+    <div id="page-content-wrapper">
+      <nav class="top-nav">
+        <button id="toggle-menu-btn">
+          <i class="fas fa-chevron-left"></i> <span id="toggle-label">Закрити меню</span>
+        </button>
+      </nav>
+      {% block content %}{% endblock %}
+    </div>
+  </div>
+
+  <!-- Підключення Bootstrap та FontAwesome -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+  {% block extra_js %}{% endblock %}
+
+  <script>
+    // Перемикання бокового меню
+    const toggleButton = document.getElementById("toggle-menu-btn");
+    const wrapper = document.getElementById("wrapper");
+
+    toggleButton.addEventListener("click", function() {
+      wrapper.classList.toggle("toggled");
+      const label = document.getElementById("toggle-label");
+
+      if (wrapper.classList.contains("toggled")) {
+        label.textContent = "Відкрити меню";
+      } else {
+        label.textContent = "Закрити меню";
+      }
+    });
+  </script>
 </body>
 </html>

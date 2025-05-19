@@ -1,140 +1,115 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 {% load static %}
 {% block content %}
 <div class="container mt-4">
   <!-- Вітальний блок -->
-  <div class="jumbotron bg-light p-4 rounded shadow-sm">
+  <div class="jumbotron p-4 bg-light rounded shadow-sm mb-4">
     <h1 class="display-4">Ласкаво просимо до системи управління бізнесом!</h1>
-    <p class="lead">Ця система автоматизує основні бізнес-процеси, допомагає контролювати кількість клієнтів, замовлень, співробітників та забезпечує аналітику в режимі реального часу.</p>
+    <p class="lead">Автоматизація основних бізнес-процесів для ефективного управління та аналітики в режимі реального часу.</p>
     <hr class="my-4">
-    <p>Оновлюйте дані, слідкуйте за сповіщеннями, керуйте ресурсами – все в одному місці.</p>
+    <p>Керуй своїм бізнесом, переглядай статистику, аналізуй дані та приймай оперативні рішення – все в одному місці.</p>
   </div>
 
-  <!-- Інформаційні картки -->
-  <div class="row">
-    <!-- Картка клієнтів -->
+  <!-- Інформаційні картки з метриками -->
+  <div class="row mb-4">
+    <!-- Клієнти -->
     <div class="col-md-3">
-      <div class="card text-white bg-primary mb-3">
-        <div class="card-header">Клієнти</div>
+      <div class="card text-white bg-primary">
         <div class="card-body">
-          <h5 class="card-title">{{ total_customers }}</h5>
-          <p class="card-text">Активних клієнтів</p>
+          <h5 class="card-title">Клієнти</h5>
+          <p class="card-text display-4">{{ total_customers }}</p>
           <a href="{% url 'customer-list' %}" class="btn btn-light btn-sm">Перейти</a>
         </div>
       </div>
     </div>
-    <!-- Картка продуктів -->
+    <!-- Продукти -->
     <div class="col-md-3">
-      <div class="card text-white bg-success mb-3">
-        <div class="card-header">Продукти</div>
+      <div class="card text-white bg-success">
         <div class="card-body">
-          <h5 class="card-title">{{ total_products }}</h5>
-          <p class="card-text">Доступних товарів</p>
+          <h5 class="card-title">Продукти</h5>
+          <p class="card-text display-4">{{ total_products }}</p>
           <a href="{% url 'product-list' %}" class="btn btn-light btn-sm">Перейти</a>
         </div>
       </div>
     </div>
-    <!-- Картка замовлень -->
+    <!-- Замовлення -->
     <div class="col-md-3">
-      <div class="card text-white bg-warning mb-3">
-        <div class="card-header">Замовлення</div>
+      <div class="card text-white bg-warning">
         <div class="card-body">
-          <h5 class="card-title">{{ total_orders }}</h5>
-          <p class="card-text">Незавершених замовлень</p>
+          <h5 class="card-title">Замовлення</h5>
+          <p class="card-text display-4">{{ total_orders }}</p>
           <a href="{% url 'order-list' %}" class="btn btn-light btn-sm">Перейти</a>
         </div>
       </div>
     </div>
-    <!-- Картка співробітників -->
+    <!-- Співробітники -->
     <div class="col-md-3">
-      <div class="card text-white bg-danger mb-3">
-        <div class="card-header">Співробітники</div>
+      <div class="card text-white bg-danger">
         <div class="card-body">
-          <h5 class="card-title">{{ total_employees }}</h5>
-          <p class="card-text">Активних співробітників</p>
+          <h5 class="card-title">Співробітники</h5>
+          <p class="card-text display-4">{{ total_employees }}</p>
           <a href="{% url 'employee-list' %}" class="btn btn-light btn-sm">Перейти</a>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Останні події / сповіщення -->
-  <div class="row">
-    <div class="col-md-6">
-      <div class="card mb-3">
-        <div class="card-header">Останні замовлення</div>
-        <ul class="list-group list-group-flush">
-          {% for order in latest_orders %}
+  <!-- Блок з останніми замовленнями -->
+  <div class="card mb-4">
+    <div class="card-header">Останні замовлення</div>
+    <div class="card-body">
+      <ul class="list-group list-group-flush">
+        {% for order in latest_orders %}
           <li class="list-group-item">
-            Замовлення #{{ order.id }} від {{ order.order_date|date:"d-m-Y" }} – клієнт: {{ order.customer }}
+            Замовлення #{{ order.id }} | {{ order.order_date|date:"d-m-Y" }} | Клієнт: {{ order.customer }}
           </li>
-          {% empty %}
+        {% empty %}
           <li class="list-group-item">Немає нових замовлень</li>
-          {% endfor %}
-        </ul>
-      </div>
-    </div>
-
-    <div class="col-md-6">
-      <div class="card mb-3">
-        <div class="card-header">Сповіщення</div>
-        <div class="card-body">
-          <!-- Приклад інтерактивного блоку сповіщень -->
-          <p>Система повідомляє: Наразі немає критичних подій!</p>
-          <!-- Можна інтегрувати AJAX-запити для динамічного оновлення -->
-        </div>
-      </div>
+        {% endfor %}
+      </ul>
     </div>
   </div>
 
-  <!-- Графічна частина: Аналітична діаграма -->
-  <div class="row">
-    <div class="col-md-12">
-      <div class="card mb-3">
-        <div class="card-header">Аналітика продажів</div>
-        <div class="card-body">
-          <canvas id="analyticsChart"></canvas>
-        </div>
-      </div>
+  <!-- Аналітична діаграма -->
+  <div class="card mb-4">
+    <div class="card-header">Аналітика продажів (останні 7 днів)</div>
+    <div class="card-body">
+      <canvas id="analyticsChart" width="400" height="150"></canvas>
     </div>
   </div>
 
-  <!-- Віджет календаря -->
-  <div class="row">
-    <div class="col-md-12">
-      <div class="card mb-3">
-        <div class="card-header">Календар завдань</div>
-        <div class="card-body">
-          <!-- Вбудований календар або інтеграція FullCalendar.js -->
-          <div id="calendar"></div>
-        </div>
-      </div>
+  <!-- Календар завдань -->
+  <div class="card mb-4">
+    <div class="card-header">Календар завдань</div>
+    <div class="card-body">
+      <div id="calendar"></div>
     </div>
   </div>
 </div>
 {% endblock %}
 
 {% block extra_js %}
-<!-- Підключення Chart.js для аналітики -->
+<!-- Підключення Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
 document.addEventListener("DOMContentLoaded", function(){
-  var ctx = document.getElementById("analyticsChart").getContext('2d');
+  var ctx = document.getElementById('analyticsChart').getContext('2d');
   var analyticsChart = new Chart(ctx, {
     type: 'line',
     data: {
-      labels: {{ chart_labels|safe }},  // Передаємо з контексту шаблону
+      labels: {{ chart_labels|safe }},
       datasets: [{
-        label: 'Продажі',
+        label: 'Кількість замовлень',
         data: {{ chart_data|safe }},
         backgroundColor: 'rgba(54, 162, 235, 0.2)',
         borderColor: 'rgba(54, 162, 235, 1)',
-        borderWidth: 1,
-        fill: true,
+        borderWidth: 2,
+        fill: true
       }]
     },
     options: {
-      scales: { 
+      responsive: true,
+      scales: {
         y: { beginAtZero: true }
       }
     }
@@ -142,15 +117,15 @@ document.addEventListener("DOMContentLoaded", function(){
 });
 </script>
 
-<!-- Підключення FullCalendar.js для календаря (опціонально) -->
-<link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.0/main.min.css" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.0/main.min.js"></script>
+<!-- Підключення FullCalendar -->
+<link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
 <script>
 document.addEventListener("DOMContentLoaded", function() {
   var calendarEl = document.getElementById('calendar');
   var calendar = new FullCalendar.Calendar(calendarEl, {
     initialView: 'dayGridMonth',
-    events: {{ calendar_events|safe }}  // Можна передати список подій з контексту
+    events: {{ calendar_events|safe }}
   });
   calendar.render();
 });

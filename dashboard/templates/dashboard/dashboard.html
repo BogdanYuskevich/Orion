@@ -1,10 +1,101 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
-</head>
-<body>
-$END$
-</body>
-</html>
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<div class="container mt-4">
+  <h1 class="mb-4">Аналітична панель (Dashboard)</h1>
+  <div class="row">
+    <!-- Картка для клієнтів -->
+    <div class="col-md-3">
+      <div class="card text-white bg-primary mb-3">
+        <div class="card-header">Клієнти</div>
+        <div class="card-body">
+          <h5 class="card-title">{{ total_customers }}</h5>
+          <p class="card-text">Перегляньте список клієнтів</p>
+          <a href="{% url 'customer-list' %}" class="btn btn-light">Перейти</a>
+        </div>
+      </div>
+    </div>
+    <!-- Картка для продуктів -->
+    <div class="col-md-3">
+      <div class="card text-white bg-success mb-3">
+        <div class="card-header">Продукти</div>
+        <div class="card-body">
+          <h5 class="card-title">{{ total_products }}</h5>
+          <p class="card-text">Перегляньте список продуктів</p>
+          <a href="{% url 'product-list' %}" class="btn btn-light">Перейти</a>
+        </div>
+      </div>
+    </div>
+    <!-- Картка для замовлень -->
+    <div class="col-md-3">
+      <div class="card text-white bg-warning mb-3">
+        <div class="card-header">Замовлення</div>
+        <div class="card-body">
+          <h5 class="card-title">{{ total_orders }}</h5>
+          <p class="card-text">Перегляньте список замовлень</p>
+          <a href="{% url 'order-list' %}" class="btn btn-light">Перейти</a>
+        </div>
+      </div>
+    </div>
+    <!-- Картка для співробітників -->
+    <div class="col-md-3">
+      <div class="card text-white bg-danger mb-3">
+        <div class="card-header">Співробітники</div>
+        <div class="card-body">
+          <h5 class="card-title">{{ total_employees }}</h5>
+          <p class="card-text">Перегляньте список співробітників</p>
+          <a href="{% url 'employee-list' %}" class="btn btn-light">Перейти</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Додатковий блок: інтерактивна діаграма. Приклад із Chart.js -->
+  <div class="row mt-4">
+    <div class="col-md-12">
+      <canvas id="dashboardChart"></canvas>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Підключаємо Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function(){
+  let ctx = document.getElementById("dashboardChart").getContext('2d');
+  // Приклад: діаграма, яка відображає кількість записів для кожного розділу
+  let chart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: ["Клієнти", "Продукти", "Замовлення", "Співробітники"],
+      datasets: [{
+        label: "Кількість записів",
+        data: [{{ total_customers }}, {{ total_products }}, {{ total_orders }}, {{ total_employees }}],
+        backgroundColor: [
+          'rgba(0, 123, 255, 0.6)',
+          'rgba(40, 167, 69, 0.6)',
+          'rgba(255, 193, 7, 0.6)',
+          'rgba(220, 53, 69, 0.6)'
+        ],
+        borderColor: [
+          'rgba(0, 123, 255, 1)',
+          'rgba(40, 167, 69, 1)',
+          'rgba(255, 193, 7, 1)',
+          'rgba(220, 53, 69, 1)'
+        ],
+        borderWidth: 1
+      }]
+    },
+    options: {
+      scales: {
+        y: {
+          beginAtZero: true
+        }
+      }
+    }
+  });
+});
+</script>
+{% endblock %}

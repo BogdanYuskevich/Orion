@@ -1,10 +1,10 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
-</head>
-<body>
-$END$
-</body>
-</html>
+{% extends 'base.html' %}
+{% block content %}
+<h1>Підтвердіть видалення</h1>
+<p>Ви впевнені, що хочете видалити клієнта "{{ object }}"?</p>
+<form method="post">
+  {% csrf_token %}
+  <button type="submit" class="btn btn-danger">Видалити</button>
+  <a href="{% url 'customer-list' %}" class="btn btn-secondary">Скасувати</a>
+</form>
+{% endblock %}

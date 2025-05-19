@@ -1,10 +1,107 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
-</head>
-<body>
-$END$
-</body>
-</html>
+{% extends 'base.html' %}
+{% block extra_css %}
+<style>
+  .form-container {
+      max-width: 600px;
+      margin: auto;
+      background: #f8f9fa;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0px 4px 10px rgba(0,0,0,0.1);
+  }
+  .form-container h1 {
+      text-align: center;
+      margin-bottom: 20px;
+      font-weight: bold;
+  }
+  .form-container .form-control {
+      border-radius: 6px;
+      padding: 10px;
+  }
+  .btn-custom {
+      width: 100%;
+      padding: 12px;
+      font-size: 1.1rem;
+      border-radius: 6px;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <div class="form-container">
+    <h1>{% if object %}Редагувати продукт{% else %}Додати продукт{% endif %}</h1>
+
+    <form method="post">
+      {% csrf_token %}
+
+      <div class="mb-3">
+        <label for="id_name" class="form-label">Назва продукту</label>
+        {{ form.name }}
+        <small id="name-error" class="text-danger d-none">Назва має містити щонайменше 3 символи.</small>
+      </div>
+
+      <div class="mb-3">
+        <label for="id_description" class="form-label">Опис</label>
+        {{ form.description }}
+      </div>
+
+      <div class="mb-3">
+        <label for="id_category" class="form-label">Категорія</label>
+        {{ form.category }}
+      </div>
+
+      <div class="mb-3">
+        <label for="id_price" class="form-label">Ціна ($)</label>
+        {{ form.price }}
+        <small id="price-error" class="text-danger d-none">Ціна має бути більше 0.</small>
+      </div>
+
+      <div class="mb-3">
+        <label for="id_discount" class="form-label">Знижка (%)</label>
+        {{ form.discount }}
+        <small id="discount-error" class="text-danger d-none">Знижка має бути від 0 до 100%.</small>
+      </div>
+
+      <div class="mb-3">
+        <label for="id_in_stock" class="form-label">В наявності</label>
+        {{ form.in_stock }}
+      </div>
+
+      <div class="mb-3">
+        <label for="id_quantity" class="form-label">Кількість</label>
+        {{ form.quantity }}
+      </div>
+
+      <button type="submit" class="btn btn-success btn-custom">Зберегти</button>
+      <a href="{% url 'product-list' %}" class="btn btn-secondary btn-custom">Скасувати</a>
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+
+  // Валідація назви
+  document.getElementById("id_name").addEventListener("input", function() {
+    const errorEl = document.getElementById("name-error");
+    errorEl.classList.toggle("d-none", this.value.length >= 3);
+  });
+
+  // Валідація ціни
+  document.getElementById("id_price").addEventListener("input", function() {
+    const errorEl = document.getElementById("price-error");
+    errorEl.classList.toggle("d-none", parseFloat(this.value) > 0);
+  });
+
+  // Валідація знижки
+  document.getElementById("id_discount").addEventListener("input", function() {
+    const errorEl = document.getElementById("discount-error");
+    errorEl.classList.toggle("d-none", this.value >= 0 && this.value <= 100);
+  });
+
+});
+</script>
+{% endblock %}

@@ -1,10 +1,243 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
-</head>
-<body>
-$END$
-</body>
-</html>
+{% extends 'base.html' %}
+{% load static %}
+{% load widget_tweaks %}
+{% block extra_css %}
+<style>
+  /* Контейнер форми */
+  .order-form-container {
+      max-width: 600px;
+      margin: 60px auto;
+      background: #ffffff;
+      border-radius: 10px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+      padding: 40px;
+  }
+  /* Заголовок */
+  .order-form-container h2 {
+      text-align: center;
+      color: #333;
+      margin-bottom: 30px;
+      font-size: 2rem;
+      font-weight: 600;
+  }
+  /* Блок для кожного поля */
+  .order-form-container .form-group {
+      margin-bottom: 20px;
+  }
+  /* Стилізація полів */
+  .order-form-container .form-control {
+      border-radius: 8px;
+      border: 1px solid #ced4da;
+      padding: 12px;
+      font-size: 1rem;
+  }
+  .order-form-container .form-control:focus {
+      border-color: #80bdff;
+      box-shadow: none;
+  }
+  /* Стилізація підписів для полів */
+  .order-form-container label {
+      font-weight: 500;
+      margin-bottom: 5px;
+      display: block;
+  }
+  /* Кнопки */
+  .btn-submit, .btn-cancel, .btn-add-row, .btn-remove-row {
+      padding: 12px;
+      font-size: 1rem;
+      border-radius: 8px;
+      font-weight: 500;
+      text-align: center;
+      text-decoration: none;
+      margin-top: 10px;
+  }
+  .btn-submit {
+      background-color: #28a745;
+      color: #fff;
+      border: none;
+      width: 48%;
+  }
+  .btn-submit:hover {
+      background-color: #218838;
+  }
+  .btn-cancel {
+      background-color: #6c757d;
+      color: #fff;
+      border: none;
+      width: 48%;
+  }
+  .btn-cancel:hover {
+      background-color: #5a6268;
+  }
+  .btn-add-row {
+      background-color: #007bff;
+      color: #fff;
+      border: none;
+      width: 100%;
+  }
+  .btn-add-row:hover {
+      background-color: #0069d9;
+  }
+  .btn-remove-row {
+      background-color: #dc3545;
+      color: #fff;
+      border: none;
+      padding: 6px 12px;
+      font-size: 0.9rem;
+      margin: 0;
+  }
+  /* Контейнер для кнопок */
+  .btn-wrapper {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      margin-top: 30px;
+  }
+  /* Стилізація таблиці для товарів */
+  .order-items-table {
+      width: 100%;
+      margin-bottom: 10px;
+  }
+  .order-items-table th, .order-items-table td {
+      vertical-align: middle;
+      padding: 8px;
+      text-align: center;
+  }
+  .order-items-table th {
+      background-color: #f1f1f1;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+  <div class="order-form-container">
+    <h2>{% if object %}Редагувати замовлення{% else %}Створити замовлення{% endif %}</h2>
+    <form method="post">
+      {% csrf_token %}
+      <!-- Основна форма замовлення -->
+      {% for field in form %}
+        <div class="form-group">
+          <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+          {% render_field field class="form-control" %}
+          {% if field.help_text %}
+            <small class="form-text text-muted">{{ field.help_text }}</small>
+          {% endif %}
+          {% if field.errors %}
+            <div class="text-danger mt-1">{{ field.errors|striptags }}</div>
+          {% endif %}
+        </div>
+      {% endfor %}
+
+      <hr>
+      <!-- Список товарів у замовленні -->
+      <h4 class="mb-3">Товари у замовленні</h4>
+      <table class="table table-bordered order-items-table">
+        <thead>
+          <tr>
+            <th>Продукт</th>
+            <th>Кількість</th>
+            <th>Видалити</th>
+          </tr>
+        </thead>
+        <tbody id="formset-table-body">
+          {{ formset.management_form }}
+          {% for item_form in formset %}
+            <tr class="order-item-row">
+              <td>{% render_field item_form.product class="form-control" %}</td>
+              <td>{% render_field item_form.quantity class="form-control" %}</td>
+              <td>
+                <button type="button" class="btn btn-danger btn-sm btn-remove-row">Видалити</button>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      <button type="button" class="btn-add-row btn btn-primary">Додати товар</button>
+
+      <div class="btn-wrapper">
+        <button type="submit" class="btn-submit btn">{% if object %}Оновити{% else %}Створити{% endif %}</button>
+        <a href="{% url 'order-list' %}" class="btn-cancel btn">Скасувати</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    var addRowBtn = document.querySelector(".btn-add-row");
+    var tableBody = document.getElementById("formset-table-body");
+    var totalFormsInput = document.querySelector('input[name="{{ formset.prefix }}-TOTAL_FORMS"]');
+
+    function updateFormIndices() {
+        var rows = document.querySelectorAll(".order-item-row");
+        rows.forEach(function(row, index) {
+            row.querySelectorAll("input, select").forEach(function(input) {
+                var name = input.getAttribute("name");
+                if (name) {
+                    var newName = name.replace(/-\d+-/, "-" + index + "-");
+                    input.setAttribute("name", newName);
+                }
+                var id = input.getAttribute("id");
+                if (id) {
+                    var newId = id.replace(/-\d+-/, "-" + index + "-");
+                    input.setAttribute("id", newId);
+                }
+            });
+        });
+        totalFormsInput.value = rows.length;
+    }
+
+    addRowBtn.addEventListener("click", function() {
+        var rows = document.querySelectorAll(".order-item-row");
+        var currentFormCount = rows.length;
+        var newRow;
+        if (rows.length > 0) {
+            newRow = rows[rows.length - 1].cloneNode(true);
+        } else {
+            // Якщо рядків немає, створюємо порожній рядок за допомогою empty_form
+            newRow = document.createElement("tr");
+            newRow.className = "order-item-row";
+            newRow.innerHTML = `
+                <td>{% render_field formset.empty_form.product class="form-control" %}</td>
+                <td>{% render_field formset.empty_form.quantity class="form-control" %}</td>
+                <td><button type="button" class="btn btn-danger btn-sm btn-remove-row">Видалити</button></td>
+            `;
+        }
+        // Очищуємо значення в новому рядку
+        newRow.querySelectorAll("input, select").forEach(function(input) {
+            if (input.tagName.toLowerCase() === "select") {
+                input.selectedIndex = 0;
+            } else {
+                input.value = "";
+            }
+        });
+        tableBody.appendChild(newRow);
+        updateFormIndices();
+    });
+
+    tableBody.addEventListener("click", function(e) {
+        if (e.target && e.target.matches(".btn-remove-row")) {
+            var rows = document.querySelectorAll(".order-item-row");
+            // Якщо більше одного рядка – видаляємо рядок із DOM
+            if (rows.length > 1) {
+                e.target.closest("tr").remove();
+                updateFormIndices();
+            } else {
+                // Якщо це останній рядок – очищуємо поля, але не видаляємо рядок
+                var row = e.target.closest("tr");
+                row.querySelectorAll("input, select").forEach(function(input) {
+                    if (input.tagName.toLowerCase() === "select") {
+                        input.selectedIndex = 0;
+                    } else {
+                        input.value = "";
+                    }
+                });
+            }
+        }
+    });
+});
+</script>
+{% endblock %}

@@ -1,10 +1,180 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
-</head>
-<body>
-$END$
-</body>
-</html>
+{% extends 'base.html' %}
+{% load static %}
+{% load custom_filters %}
+
+{% block extra_css %}
+<style>
+  /* Стиль таблиці клієнтів */
+  .table thead th {
+      background-color: #212529;
+      color: white;
+      font-size: 18px;
+      padding: 14px;
+      text-align: center;
+  }
+  .table tbody tr:hover {
+      background-color: #f8f9fa;
+  }
+  .table td {
+      padding: 12px;
+      text-align: center;
+  }
+  /* Збільшені іконки */
+  .btn i {
+      font-size: 1.4rem;
+  }
+  /* Стилі для модального вікна календаря */
+  #calendar {
+      max-width: 900px;
+      margin: 0 auto;
+  }
+</style>
+<!-- Підключення CSS FullCalendar із CDN (або використовуйте ваш локальний файл) -->
+<link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/main.min.css" rel="stylesheet">
+{% endblock extra_css %}
+
+{% block content %}
+<div class="container mt-4">
+  <h1 class="mb-4">Список клієнтів</h1>
+
+{#  <!-- Кнопка для відкриття модального вікна з календарем -->#}
+{#  <div class="mb-3">#}
+{#    <a href="#calendarModal" data-bs-toggle="modal" class="btn btn-outline-info">#}
+{#      <i class="fas fa-calendar-alt"></i> Мій календар#}
+{#    </a>#}
+{#  </div>#}
+
+  <!-- Форма пошуку -->
+  <form method="get" id="searchForm" class="mb-3">
+    <div class="input-group">
+      <input type="text" name="q" class="form-control" placeholder="Пошук клієнтів" value="{{ request.GET.q }}">
+      <button class="btn btn-outline-secondary" type="submit">
+        <i class="fas fa-search"></i> Пошук
+      </button>
+    </div>
+  </form>
+
+  <!-- Кнопки управління -->
+  <div class="mb-3">
+    <a href="{% url 'customer-create' %}" class="btn btn-primary">
+      <i class="fas fa-plus"></i> Додати клієнта
+    </a>
+    <a href="{% url 'export-customers-csv' %}" class="btn btn-success">
+      <i class="fas fa-file-csv"></i> Експорт CSV
+    </a>
+    <button class="btn btn-secondary" onclick="location.reload();">
+      <i class="fas fa-sync"></i> Оновити
+    </button>
+  </div>
+
+  <!-- Таблиця клієнтів -->
+  <div id="customersTableContainer">
+    <table class="table table-bordered">
+      <thead>
+        <tr>
+          <th>Ім'я</th>
+          <th>Прізвище</th>
+          <th>Email</th>
+          <th>Дії</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for customer in customers %}
+        <tr>
+          <td>{{ customer.first_name }}</td>
+          <td>{{ customer.last_name }}</td>
+          <td>{{ customer.email }}</td>
+          <td>
+            <a href="{% url 'customer-detail' customer.pk %}" class="btn btn-info btn-sm">
+              <i class="fas fa-eye"></i> Переглянути
+            </a>
+            <a href="{% url 'customer-update' customer.pk %}" class="btn btn-warning btn-sm">
+              <i class="fas fa-edit"></i> Редагувати
+            </a>
+            <button class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteModal{{ customer.pk }}">
+              <i class="fas fa-trash-alt"></i> Видалити
+            </button>
+            <!-- Модальне вікно підтвердження видалення -->
+            <div class="modal fade" id="deleteModal{{ customer.pk }}" tabindex="-1" aria-labelledby="deleteModalLabel{{ customer.pk }}" aria-hidden="true">
+              <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title" id="deleteModalLabel{{ customer.pk }}">Підтвердження видалення</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрити"></button>
+                  </div>
+                  <div class="modal-body">
+                    Ви впевнені, що хочете видалити клієнта "{{ customer }}"?
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Скасувати</button>
+                    <a href="{% url 'customer-delete' customer.pk %}" class="btn btn-danger">Видалити</a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="4" class="text-center">Немає клієнтів</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Модальне вікно з календарем -->
+<div class="modal fade" id="calendarModal" tabindex="-1" aria-labelledby="calendarModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-xl modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="calendarModalLabel">Календар зустрічей та подій</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрити"></button>
+      </div>
+      <div class="modal-body">
+        <div id="calendar"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<!-- Підключення JS FullCalendar із CDN -->
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/main.min.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    var calendarEl = document.getElementById('calendar');
+
+    var calendar = new FullCalendar.Calendar(calendarEl, {
+      initialView: 'dayGridMonth',
+      headerToolbar: {
+        start: 'prev,next today',
+        center: 'title',
+        end: 'dayGridMonth,timeGridWeek,timeGridDay'
+      },
+      // Приклад подій; необхідно замінити на AJAX-запит до вашого backend для завантаження реальних даних
+      events: [
+        {
+          title: 'Зустріч з клієнтом',
+          start: '2025-06-05T10:30:00',
+          end: '2025-06-05T12:30:00'
+        },
+        {
+          title: 'Консультація',
+          start: '2025-06-09T14:00:00'
+        }
+      ]
+    });
+    calendar.render();
+  });
+
+  // Ініціалізація Bootstrap Tooltip для кнопок (якщо використовуються)
+  var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+  var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+    return new bootstrap.Tooltip(tooltipTriggerEl);
+  });
+</script>
+{% endblock %}

@@ -1,10 +1,14 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
-</head>
-<body>
-$END$
-</body>
-</html>
+{% extends 'base.html' %}
+{% block content %}
+<h1>Деталі продукту</h1>
+<ul class="list-group">
+    <li class="list-group-item"><strong>Назва:</strong> {{ object.name }}</li>
+    <li class="list-group-item"><strong>Опис:</strong> {{ object.description }}</li>
+    <li class="list-group-item"><strong>Ціна:</strong> {{ object.price }}</li>
+    <li class="list-group-item"><strong>Кількість:</strong> {{ object.quantity }}</li>
+    {% if object.category %} 
+    <li class="list-group-item"><strong>Категорія:</strong> {{ object.category }}</li>
+    {% endif %}
+</ul>
+<a href="{% url 'product-list' %}" class="btn btn-primary mt-3">Повернутися до списку</a>
+{% endblock %}

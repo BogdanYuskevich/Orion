@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<h1 class="mb-4">Аналітика замовлень</h1>
+<div class="row mb-3">
+    <div class="col-md-4">
+        <div class="card text-white bg-info">
+            <div class="card-header">Загальна кількість замовлень</div>
+            <div class="card-body">
+                <h5 class="card-title">{{ total_orders }}</h5>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-white bg-success">
+            <div class="card-header">Сумарний дохід</div>
+            <div class="card-body">
+                <h5 class="card-title">{{ total_revenue }} грн</h5>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+    <a href="{% url 'export-orders-xlsx' %}" class="btn btn-primary btn-block">
+        <i class="fas fa-file-excel"></i> Експорт в XLSX
+    </a>
+
+</div>
+
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <canvas id="ordersStatusChart" width="800" height="400"></canvas>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Підключення Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    var ctx = document.getElementById('ordersStatusChart').getContext('2d');
+    var ordersChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: {{ labels|safe }},
+            datasets: [{
+                label: 'Кількість замовлень',
+                data: {{ data|safe }},
+                backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                y: { beginAtZero: true }
+            }
+        }
+    });
+});
+</script>
+{% endblock %}

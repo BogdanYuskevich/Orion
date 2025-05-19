@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block extra_css %}
+<style>
+  .delete-form-container {
+      max-width: 500px;
+      margin: 60px auto;
+      background: #ffffff;
+      border-radius: 10px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+      padding: 40px;
+      text-align: center;
+  }
+  .delete-form-container h2 {
+      margin-bottom: 20px;
+      font-size: 1.75rem;
+      font-weight: 600;
+      color: #333;
+  }
+  .delete-form-container p {
+      margin-bottom: 30px;
+      font-size: 1.1rem;
+  }
+  .btn-delete {
+      background-color: #dc3545;
+      color: #fff;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 8px;
+      font-size: 1rem;
+  }
+  .btn-delete:hover {
+      background-color: #c82333;
+  }
+  .btn-cancel {
+      margin-top: 20px;
+      display: inline-block;
+      font-size: 1rem;
+      color: #007bff;
+      text-decoration: none;
+  }
+  .btn-cancel:hover {
+      text-decoration: underline;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="delete-form-container">
+  <h2>Підтвердіть видалення замовлення</h2>
+  <p>Ви впевнені, що хочете видалити це замовлення?</p>
+  <form method="post">
+    {% csrf_token %}
+    <button type="submit" class="btn-delete">Видалити замовлення</button>
+  </form>
+  <a href="{% url 'order-list' %}" class="btn-cancel">Скасувати</a>
+</div>
+{% endblock %}

@@ -1,10 +1,134 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
-</head>
-<body>
-$END$
-</body>
-</html>
+{% extends 'base.html' %}
+{% block extra_css %}
+<style>
+  .form-container {
+      max-width: 600px;
+      margin: auto;
+      background: #f8f9fa;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0px 4px 10px rgba(0,0,0,0.1);
+  }
+  .form-container h1 {
+      text-align: center;
+      margin-bottom: 20px;
+      font-weight: bold;
+  }
+  .form-container .form-control {
+      border-radius: 6px;
+      padding: 10px;
+  }
+  .btn-custom {
+      width: 100%;
+      padding: 12px;
+      font-size: 1.1rem;
+      border-radius: 6px;
+  }
+  /* Статус заповнення */
+  #progress-container {
+      width: 100%;
+      background: #e9ecef;
+      border-radius: 5px;
+      overflow: hidden;
+      margin-bottom: 10px;
+  }
+  #progress-bar {
+      width: 0%;
+      height: 10px;
+      background: #28a745;
+      transition: width 0.3s ease-in-out;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <div class="form-container">
+    <h1>{% if object %}Редагувати{% else %}Додати{% endif %} клієнта</h1>
+
+    <!-- Індикатор заповнення форми -->
+    <div id="progress-container">
+      <div id="progress-bar"></div>
+    </div>
+
+    <form method="post" id="customer-form">
+      {% csrf_token %}
+      <div class="mb-3">
+        <label for="id_first_name" class="form-label">Ім'я</label>
+        {{ form.first_name }}
+      </div>
+      <div class="mb-3">
+        <label for="id_last_name" class="form-label">Прізвище</label>
+        {{ form.last_name }}
+      </div>
+      <div class="mb-3">
+        <label for="id_email" class="form-label">Email</label>
+        {{ form.email }}
+        <small id="email-error" class="text-danger d-none">Некоректний email</small>
+      </div>
+      <div class="mb-3">
+        <label for="id_phone" class="form-label">Телефон</label>
+        {{ form.phone }}
+        <small id="phone-error" class="text-danger d-none">Некоректний телефон</small>
+      </div>
+          <div class="mb-3">
+      <label for="id_address" class="form-label">Адреса</label>
+      {{ form.address }}
+    </div>
+      <div class="mb-3">
+        <label for="id_meeting_date" class="form-label">Дата зустрічі</label>
+        <input type="date" id="meeting-date" name="meeting_date" class="form-control">
+      </div>
+      <button type="submit" class="btn btn-success btn-custom">Зберегти</button>
+      <a href="{% url 'customer-list' %}" class="btn btn-secondary btn-custom">Скасувати</a>
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+
+  // Валідація Email
+  document.getElementById("id_email").addEventListener("input", function() {
+    const email = this.value;
+    const emailError = document.getElementById("email-error");
+    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    emailError.classList.toggle("d-none", regex.test(email));
+  });
+
+  // Валідація Телефону (тільки цифри)
+  document.getElementById("id_phone").addEventListener("input", function() {
+    const phone = this.value;
+    const phoneError = document.getElementById("phone-error");
+    const regex = /^\+?\d{10,15}$/;
+    phoneError.classList.toggle("d-none", regex.test(phone));
+  });
+
+
+
+  // Індикатор заповнення
+  const formFields = document.querySelectorAll("#customer-form input");
+  const progressBar = document.getElementById("progress-bar");
+
+  function updateProgress() {
+    let filledFields = 0;
+    formFields.forEach(field => {
+      if (field.value.trim() !== "") {
+        filledFields++;
+      }
+    });
+    const progressPercentage = (filledFields / formFields.length) * 100;
+    progressBar.style.width = `${progressPercentage}%`;
+  }
+
+  formFields.forEach(field => {
+    field.addEventListener("input", updateProgress);
+  });
+
+});
+</script>
+{% endblock %}

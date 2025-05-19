@@ -1,10 +1,142 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
-</head>
-<body>
-$END$
-</body>
-</html>
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<h1 class="mb-4">Список продуктів</h1>
+
+<!-- Фільтри -->
+<form method="get" id="searchForm" class="mb-3">
+  <div class="row">
+    <div class="col-md-4">
+      <input type="text" name="q" class="form-control" placeholder="Пошук продуктів" value="{{ request.GET.q }}">
+    </div>
+    <div class="col-md-3">
+      <select name="category" class="form-control">
+        <option value="">Всі категорії</option>
+        {% for cat in categories %}
+          <option value="{{ cat.id }}" {% if request.GET.category == cat.id|stringformat:"s" %}selected{% endif %}>{{ cat.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-md-3">
+      <select name="sort_by" class="form-control">
+        <option value="name" {% if request.GET.sort_by == "name" %}selected{% endif %}>Сортувати за назвою</option>
+        <option value="price" {% if request.GET.sort_by == "price" %}selected{% endif %}>Сортувати за ціною</option>
+        <option value="quantity" {% if request.GET.sort_by == "quantity" %}selected{% endif %}>Сортувати за кількістю</option>
+      </select>
+    </div>
+    <div class="col-md-2">
+      <button class="btn btn-primary w-100" type="submit">🔍 Фільтрувати</button>
+    </div>
+  </div>
+</form>
+
+<!-- Вибір кількості товарів на сторінці -->
+<div class="mb-3">
+  <label for="itemsPerPage">Кількість товарів:</label>
+  <select id="itemsPerPage" name="items_per_page" class="form-select w-auto d-inline">
+    <option value="10" {% if items_per_page == "10" %}selected{% endif %}>10</option>
+    <option value="20" {% if items_per_page == "20" %}selected{% endif %}>20</option>
+    <option value="50" {% if items_per_page == "50" %}selected{% endif %}>50</option>
+    <option value="100" {% if items_per_page == "100" %}selected{% endif %}>100</option>
+  </select>
+</div>
+
+<div class="mb-3">
+  <a href="{% url 'product-create' %}" class="btn btn-success">
+    <i class="fas fa-plus"></i> Додати продукт
+  </a>
+  <button class="btn btn-secondary" onclick="location.reload();">
+    <i class="fas fa-sync"></i> Оновити
+  </button>
+  <a href="{% url 'export-products' %}" class="btn btn-outline-primary ms-2">
+    <i class="fas fa-file-download"></i> Завантажити всі продукти (CSV)
+  </a>
+  <a href="{% url 'export-out-of-stock' %}" class="btn btn-outline-danger ms-2">
+    <i class="fas fa-exclamation-circle"></i> Завантажити товари без наявності (CSV)
+  </a>
+</div>
+
+<div id="productsTableContainer">
+  <table class="table table-hover table-bordered">
+    <thead class="table-dark">
+      <tr>
+        <th>Назва</th>
+        <th>Категорія</th>
+        <th>Ціна</th>
+        <th>Знижка</th>
+        <th>Кінцева ціна</th>
+        <th>Наявність</th>
+        <th>Дії</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for product in products %}
+      <tr>
+        <td>{{ product.name }}</td>
+        <td>{{ product.category.name }}</td>
+        <td>${{ product.price }}</td>
+        <td>{{ product.discount }}%</td>
+        <td>${{ product.final_price }}</td>
+        <td>
+          {% if product.in_stock %}
+            <span class="badge bg-success">✔ В наявності</span>
+          {% else %}
+            <span class="badge bg-danger">❌ Немає</span>
+          {% endif %}
+        </td>
+        <td class="text-center">
+          <div class="d-flex justify-content-center gap-2">
+            <a href="{% url 'product-detail' product.pk %}" class="btn btn-info btn-sm px-3" title="Перегляд">
+              <i class="fas fa-eye"></i> Перегляд
+            </a>
+            <a href="{% url 'product-update' product.pk %}" class="btn btn-warning btn-sm px-3" title="Редагувати">
+              <i class="fas fa-edit"></i> Редагувати
+            </a>
+            <a href="{% url 'product-delete' product.pk %}" class="btn btn-danger btn-sm px-3" title="Видалити">
+              <i class="fas fa-trash-alt"></i> Видалити
+            </a>
+          </div>
+        </td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="7" class="text-center">Немає продуктів</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<!-- Пагінація -->
+<nav>
+  <ul class="pagination justify-content-center">
+    {% if page_obj.has_previous %}
+      <li class="page-item">
+        <a class="page-link" href="?page=1&items_per_page={{ items_per_page }}">⏪ Перша</a>
+      </li>
+      <li class="page-item">
+        <a class="page-link" href="?page={{ page_obj.previous_page_number }}&items_per_page={{ items_per_page }}">⬅ Попередня</a>
+      </li>
+    {% endif %}
+    {% for num in paginator.page_range %}
+      <li class="page-item {% if page_obj.number == num %}active{% endif %}">
+        <a class="page-link" href="?page={{ num }}&items_per_page={{ items_per_page }}">{{ num }}</a>
+      </li>
+    {% endfor %}
+    {% if page_obj.has_next %}
+      <li class="page-item">
+        <a class="page-link" href="?page={{ page_obj.next_page_number }}&items_per_page={{ items_per_page }}">➡ Наступна</a>
+      </li>
+      <li class="page-item">
+        <a class="page-link" href="?page={{ paginator.num_pages }}&items_per_page={{ items_per_page }}">⏩ Остання</a>
+      </li>
+    {% endif %}
+  </ul>
+</nav>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  document.getElementById("itemsPerPage").addEventListener("change", function() {
+    window.location.href = "?items_per_page=" + this.value;
+  });
+</script>
+{% endblock %}

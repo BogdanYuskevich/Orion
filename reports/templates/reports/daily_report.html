@@ -1,10 +1,130 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
-</head>
-<body>
-$END$
-</body>
-</html>
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+  <h2>Щоденний звіт за {{ today|date:"Y-m-d" }}</h2>
+
+  <!-- Ряд з карточками з ключовими показниками -->
+  <div class="row">
+    <div class="col-md-3">
+      <div class="card mb-3">
+        <div class="card-body">
+          <h5 class="card-title">Замовлень сьогодні</h5>
+          <p class="card-text">{{ today_count }}</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card mb-3">
+        <div class="card-body">
+          <h5 class="card-title">Замовлень вчора</h5>
+          <p class="card-text">{{ yesterday_count }}</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card mb-3">
+        <div class="card-body">
+          <h5 class="card-title">Зміна (%)</h5>
+          <p class="card-text">{{ change_percentage }}%</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card mb-3">
+        <div class="card-body">
+          <h5 class="card-title">Загальна сума</h5>
+          <p class="card-text">{{ revenue_today }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Додаткова інформація: середня сума замовлення -->
+  <div class="row">
+    <div class="col-md-12">
+      <div class="alert alert-info">
+        Середня сума замовлення сьогодні: {{ avg_order }}
+      </div>
+    </div>
+  </div>
+
+  <!-- Блок без графіка: Прогрес-бари та індикатори -->
+  <!-- Карточка "Досягнення цілі продажів" -->
+  <div class="card mt-4">
+    <div class="card-body">
+      <h5 class="card-title">Досягнення цілі продажів</h5>
+      {% comment %}
+      Вважаємо, що ціль на день становить 100 замовлень.
+      Якщо сьогодні, наприклад, 30 замовлень, прогрес буде 30%.
+      {% endcomment %}
+      <div class="progress mb-2" style="height: 30px;">
+        <div class="progress-bar bg-info" role="progressbar"
+             style="width: {% if today_count > 100 %}100{% else %}{{ today_count }}{% endif %}%;"
+             aria-valuenow="{% if today_count > 100 %}100{% else %}{{ today_count }}{% endif %}"
+             aria-valuemin="0" aria-valuemax="100">
+          {% if today_count > 100 %}
+            100%
+          {% else %}
+            {{ today_count }}%
+          {% endif %}
+          від цілі (Ціль: 100 замовлень)
+        </div>
+      </div>
+    </div>
+  </div>
+<!-- Карточка "Зміна порівняно з попереднім днем" -->
+<div class="card mt-4">
+  <div class="card-body">
+    <h5 class="card-title">Зміна порівняно з попереднім днем</h5>
+    {% if change_percentage > 0 %}
+      <p class="text-success">↑ {{ change_percentage }}%</p>
+    {% elif change_percentage < 0 %}
+      <p class="text-danger">↓ {{ change_percentage_abs }}%</p>
+    {% else %}
+      <p class="text-muted">Без змін</p>
+    {% endif %}
+    <div class="progress" style="height: 20px;">
+      <div class="progress-bar {% if change_percentage > 0 %}bg-success{% elif change_percentage < 0 %}bg-danger{% else %}bg-secondary{% endif %}"
+           role="progressbar"
+           style="width: {% if change_percentage_abs > 100 %}100{% else %}{{ change_percentage_abs }}{% endif %}%;"
+           aria-valuenow="{{ change_percentage_abs }}" aria-valuemin="0" aria-valuemax="100">
+      </div>
+    </div>
+  </div>
+</div>
+
+  <!-- Таблиця з деталями замовлень -->
+  <div class="mt-4">
+    <h5>Деталі замовлень сьогодні</h5>
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>№ Замовлення</th>
+          <th>Дата</th>
+          <th>Сума</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for order in orders_list %}
+        <tr>
+          <td>{{ order.id }}</td>
+          <td>{{ order.date }}</td>
+          <td>{{ order.amount }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="3">Замовлень не знайдено</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Кнопки для експорту -->
+  <div class="mt-3">
+    <a href="{% url 'export_pdf_report' %}" class="btn btn-primary">Експорт у PDF</a>
+    <a href="{% url 'export_excel_report' %}" class="btn btn-success">Експорт в Excel</a>
+  </div>
+</div>
+{% endblock %}

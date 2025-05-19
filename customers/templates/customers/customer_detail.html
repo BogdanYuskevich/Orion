@@ -1,10 +1,13 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
-</head>
-<body>
-$END$
-</body>
-</html>
+{% extends 'base.html' %}
+{% block content %}
+<h1>Деталі клієнта</h1>
+<ul class="list-group">
+  <li class="list-group-item"><strong>Ім'я:</strong> {{ object.first_name }}</li>
+  <li class="list-group-item"><strong>Прізвище:</strong> {{ object.last_name }}</li>
+  <li class="list-group-item"><strong>Email:</strong> {{ object.email }}</li>
+  <li class="list-group-item"><strong>Телефон:</strong> {{ object.phone }}</li>
+  <li class="list-group-item"><strong>Адреса:</strong> {{ object.address }}</li>
+  <li class="list-group-item"><strong>Нотатки:</strong> {{ object.notes }}</li>
+</ul>
+<a href="{% url 'customer-list' %}" class="btn btn-primary mt-3">Повернутися до списку</a>
+{% endblock %}

@@ -1,10 +1,13 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
-</head>
-<body>
-$END$
-</body>
-</html>
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<div class="container mt-4">
+  <h1 class="mb-4">Підтвердження видалення</h1>
+  <p>Ви впевнені, що хочете видалити співробітника {{ object }}?</p>
+  <form method="post">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-danger">Видалити</button>
+    <a href="{% url 'employee-list' %}" class="btn btn-secondary">Скасувати</a>
+  </form>
+</div>
+{% endblock %}

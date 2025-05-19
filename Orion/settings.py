@@ -64,11 +64,10 @@ INSTALLED_APPS = [
     'allauth.socialaccount',
     # інші, наприклад, django-filter (якщо потрібно)
     'django_apscheduler',
+    'widget_tweaks',
 ]
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
-
-
 
 TIME_ZONE = 'UTC'  # або ваш конкретний часовий пояс, наприклад, 'Europe/Kiev'
 USE_TZ = True

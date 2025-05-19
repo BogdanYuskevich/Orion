@@ -1,10 +1,44 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
-</head>
-<body>
-$END$
-</body>
-</html>
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<style>
+  .form-label {
+      font-weight: bold;
+  }
+</style>
+{% endblock extra_css %}
+
+{% block content %}
+<div class="container mt-4">
+  <h1>Створення завдання для {{ customer.first_name }} {{ customer.last_name }}</h1>
+  <form method="post" novalidate>
+    {% csrf_token %}
+    <div class="mb-3">
+      <label for="id_title" class="form-label">Назва завдання</label>
+      {{ form.title }}
+      {% if form.title.errors %}
+        <div class="text-danger">{{ form.title.errors }}</div>
+      {% endif %}
+    </div>
+    <div class="mb-3">
+      <label for="id_description" class="form-label">Опис</label>
+      {{ form.description }}
+      {% if form.description.errors %}
+        <div class="text-danger">{{ form.description.errors }}</div>
+      {% endif %}
+    </div>
+    <div class="mb-3">
+      <label for="id_due_date" class="form-label">Дата виконання</label>
+      {{ form.due_date }}
+      {% if form.due_date.errors %}
+        <div class="text-danger">{{ form.due_date.errors }}</div>
+      {% endif %}
+    </div>
+    <button type="submit" class="btn btn-primary">
+      <i class="fas fa-plus"></i> Створити завдання
+    </button>
+    <a href="{% url 'customer-tasks' %}?customer_id={{ customer.id }}" class="btn btn-secondary">Відмінити</a>
+  </form>
+</div>
+{% endblock %}

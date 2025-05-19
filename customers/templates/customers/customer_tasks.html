@@ -1,10 +1,50 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
-</head>
-<body>
-$END$
-</body>
-</html>
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+  <h1>Завдання та нагадування</h1>
+  <p>Нижче наведено список завдань для клієнтів.</p>
+
+  <div class="mb-3">
+      <a href="{% url 'customer-task-create' %}" class="btn btn-primary">
+          <i class="fas fa-plus"></i> Додати завдання
+      </a>
+      <a href="{% url 'customer-list' %}" class="btn btn-secondary">
+          <i class="fas fa-arrow-left"></i> Назад до списку клієнтів
+      </a>
+  </div>
+
+  <!-- Дебаг-вивід для перевірки -->
+  <p>DEBUG: Завдання у шаблоні: {{ tasks }}</p>
+
+  {% if tasks %}
+  <div class="table-responsive mt-3">
+    <table class="table table-bordered table-striped task-table">
+      <thead class="thead-dark">
+        <tr>
+          <th>Назва завдання</th>
+          <th>Опис</th>
+          <th>Дата виконання</th>
+          <th>Дата створення</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for task in tasks %}
+        <tr>
+          <td>{{ task.title }}</td>
+          <td>{{ task.description }}</td>
+          <td>{{ task.due_date }}</td>
+          <td>{{ task.created_at|date:"Y-m-d H:i" }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="alert alert-info mt-3" role="alert">
+      Немає завдань.
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

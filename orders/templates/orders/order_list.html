@@ -1,10 +1,162 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
-</head>
-<body>
-$END$
-</body>
-</html>
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<div class="container mt-4">
+  <!-- Картка для замовлень -->
+  <div class="card shadow-sm">
+    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+      <h2 class="mb-0">СПИСОК ЗАМОВЛЕНЬ</h2>
+      <div>
+        <!-- Кнопки: додати замовлення та експортувати CSV -->
+        <a href="{% url 'order-create' %}" class="btn btn-lg btn-success mr-2">
+          <i class="fas fa-plus"></i> Додати замовлення
+        </a>
+        <a href="?export=csv{% if q %}&q={{ q }}{% endif %}{% if request.GET.sort_by %}&sort_by={{ request.GET.sort_by }}&order={{ request.GET.order }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}"
+           class="btn btn-lg btn-info">
+          <i class="fas fa-file-export"></i> Експорт CSV
+        </a>
+      <!-- Кнопка для переходу до аналітики замовлень -->
+    <a href="{% url 'order-analytics' %}" class="btn btn-lg btn-secondary">
+      <i class="fas fa-chart-bar"></i> Аналітика
+    </a>
+      </div>
+    </div>
+    <div class="card-body">
+      <!-- Панель пошуку з текстовим полем та select для статусів -->
+      <div class="row mb-3">
+        <div class="col-md-6">
+          <form method="get" id="searchForm">
+            <div class="input-group">
+              <input type="text" name="q" class="form-control" placeholder="Пошук замовлень" value="{{ q }}">
+              <select name="status" class="form-control">
+                <option value="">Всі статуси</option>
+                {% for key, label in status_choices %}
+                  <option value="{{ key }}" {% if status_filter == key %}selected{% endif %}>
+                    {{ label }}
+                  </option>
+                {% endfor %}
+              </select>
+              <div class="input-group-append">
+                <button class="btn btn-lg btn-outline-secondary" type="submit">
+                  <i class="fas fa-search"></i> Пошук
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+        <div class="col-md-6 text-right">
+          <button class="btn btn-lg btn-secondary" onclick="location.reload();">
+            <i class="fas fa-sync"></i> Оновити
+          </button>
+        </div>
+      </div>
+
+      <!-- Таблиця замовлень -->
+      <div id="ordersTableContainer">
+        <table class="table table-bordered table-striped table-hover">
+          <thead class="thead-dark">
+            <tr>
+              <th>
+                <a href="?q={{ q }}&sort_by=order_date&order={% if request.GET.sort_by == 'order_date' and request.GET.order == 'asc' %}desc{% else %}asc{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}" class="text-white">
+                  Дата <i class="fas fa-sort"></i>
+                </a>
+              </th>
+              <th>Клієнт</th>
+              <th>Статус</th>
+              <th>Сума</th>
+              <th>Дії</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for order in orders %}
+            <tr>
+              <td>{{ order.order_date|date:"d-m-Y H:i" }}</td>
+              <td>{{ order.customer }}</td>
+              <td>{{ order.status }}</td>
+              <td>{{ order.total_amount }}</td>
+              <td>
+                <a href="{% url 'order-detail' order.pk %}" class="btn btn-lg btn-info">
+                  <i class="fas fa-eye"></i> Деталі
+                </a>
+                <a href="{% url 'order-update' order.pk %}" class="btn btn-lg btn-warning">
+                  <i class="fas fa-edit"></i> Редагувати
+                </a>
+                <a href="{% url 'order-delete' order.pk %}" class="btn btn-lg btn-danger">
+                  <i class="fas fa-trash-alt"></i> Видалити
+                </a>
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="5" class="text-center">Немає замовлень</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+
+        <!-- Пагінація -->
+        {% if is_paginated %}
+        <nav aria-label="Page navigation">
+          <ul class="pagination justify-content-center mt-3">
+            {% if page_obj.has_previous %}
+            <li class="page-item">
+              <a class="page-link" href="?q={{ q }}&page={{ page_obj.previous_page_number }}{% if request.GET.sort_by %}&sort_by={{ request.GET.sort_by }}&order={{ request.GET.order }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}">
+                Попередня
+              </a>
+            </li>
+            {% else %}
+            <li class="page-item disabled"><span class="page-link">Попередня</span></li>
+            {% endif %}
+
+            {% for num in paginator.page_range %}
+              {% if page_obj.number == num %}
+              <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+              {% else %}
+              <li class="page-item">
+                <a class="page-link" href="?q={{ q }}&page={{ num }}{% if request.GET.sort_by %}&sort_by={{ request.GET.sort_by }}&order={{ request.GET.order }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}">
+                  {{ num }}
+                </a>
+              </li>
+              {% endif %}
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+            <li class="page-item">
+              <a class="page-link" href="?q={{ q }}&page={{ page_obj.next_page_number }}{% if request.GET.sort_by %}&sort_by={{ request.GET.sort_by }}&order={{ request.GET.order }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}">
+                Наступна
+              </a>
+            </li>
+            {% else %}
+            <li class="page-item disabled"><span class="page-link">Наступна</span></li>
+            {% endif %}
+          </ul>
+        </nav>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+  $('#searchForm').submit(function(e) {
+    e.preventDefault();
+    var query = $(this).serialize();
+    $.ajax({
+      url: window.location.href,
+      type: 'GET',
+      data: query,
+      success: function(data) {
+        var updatedTable = $(data).find("#ordersTableContainer").html();
+        $("#ordersTableContainer").html(updatedTable);
+      },
+      error: function() {
+        alert("Помилка при здійсненні пошуку!");
+      }
+    });
+  });
+});
+</script>
+{% endblock %}
