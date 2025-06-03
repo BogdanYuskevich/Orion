@@ -1,21 +1,20 @@
-from django.urls import reverse_lazy
 from django.views.generic import ListView, UpdateView, DeleteView, DetailView
 from django.urls import reverse_lazy
 from django.shortcuts import render, redirect
 from .models import Order, OrderItem
 from .forms import OrderForm, OrderItemFormSet
 from notifications.order_email_notifications import send_order_notification  # новий модуль
-
+from django.db.models import Q
+from django.views.generic import TemplateView
+from django.db.models import Sum, Count
 
 import csv
-from django.db.models import Q
+import io
 from django.http import HttpResponse
-from django.views.generic import ListView
-from .models import Order
+from django.views import View
 
-import csv
-from django.db.models import Q
-from django.http import HttpResponse
+import openpyxl
+from openpyxl.utils import get_column_letter
 from django.views.generic import ListView
 from .models import Order
 
@@ -118,17 +117,6 @@ def order_create(request):
     return render(request, 'orders/order_form.html', {'form': form, 'formset': formset})
 
 
-from django.views.generic import TemplateView
-from django.db.models import Sum, Count
-from .models import Order
-
-import csv
-import io
-from django.http import HttpResponse
-from django.views import View
-from .models import Order
-import openpyxl
-from openpyxl.utils import get_column_letter
 
 
 class ExportOrdersXLSX(View):
@@ -162,10 +150,6 @@ class ExportOrdersXLSX(View):
         response['Content-Disposition'] = 'attachment; filename=orders.xlsx'
         return response
 
-
-from django.template.loader import render_to_string
-from django.views import View
-from django.http import HttpResponse
 
 
 class OrderAnalyticsView(TemplateView):

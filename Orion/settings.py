@@ -40,7 +40,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    # Ваші додатки:
     'accounts',  # Кастомна модель користувача
     'customers',  # Вказуємо лише один запис для customers
     'products',  # Вказуємо лише один запис для products
@@ -62,19 +61,18 @@ INSTALLED_APPS = [
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
-    # інші, наприклад, django-filter (якщо потрібно)
     'django_apscheduler',
     'widget_tweaks',
 ]
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
 
-TIME_ZONE = 'UTC'  # або ваш конкретний часовий пояс, наприклад, 'Europe/Kiev'
+TIME_ZONE = 'UTC'
 USE_TZ = True
 # ASGI-додаток
 ASGI_APPLICATION = 'Orion.asgi.application'
 
-# Вказуємо, що будемо використовувати нашу кастомну модель користувача:
+
 AUTH_USER_MODEL = 'accounts.CustomUser'
 # Channel Layers (можна використати InMemory для розробки або Redis у продакшені)
 CHANNEL_LAYERS = {

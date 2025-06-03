@@ -9,7 +9,6 @@ CHAT_ID = "541931591"
 WEBHOOK_URL = "https://your-domain.com/telegram-webhook"
 
 def send_telegram_message(text, keyboard=None):
-    """Надсилає повідомлення в Telegram з кнопками"""
     url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
     data = {
         "chat_id": CHAT_ID,
@@ -21,7 +20,6 @@ def send_telegram_message(text, keyboard=None):
     requests.post(url, data=data)
 
 def notify_out_of_stock(product):
-    """Сповіщення про те, що товар закінчився"""
     keyboard = {
         "inline_keyboard": [[{"text": "🔄 В наявності", "callback_data": f"back_in_stock_{product.id}"}]]
     }
@@ -29,7 +27,6 @@ def notify_out_of_stock(product):
 
 @csrf_exempt
 def telegram_webhook(request):
-    """Обробляє запити від Telegram (callback-кнопки)"""
     data = json.loads(request.body.decode("utf-8"))
     if "callback_query" in data:
         callback_data = data["callback_query"]["data"]
@@ -42,12 +39,10 @@ def telegram_webhook(request):
     return JsonResponse({"status": "ok"})
 
 def ask_quantity(chat_id, product_id):
-    """Запитує у користувача скільки товару є тепер"""
     send_telegram_message(f"Скільки одиниць товару доступно?", {"force_reply": True})
 
 @csrf_exempt
 def handle_quantity_reply(request):
-    """Оновлює кількість товару в базі даних"""
     data = json.loads(request.body.decode("utf-8"))
     if "message" in data and "reply_to_message" in data["message"]:
         product_id = int(data["message"]["reply_to_message"]["text"].split("_")[-1])

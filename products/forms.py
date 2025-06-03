@@ -28,9 +28,6 @@ class ProductForm(forms.ModelForm):
             raise forms.ValidationError("Знижка має бути в діапазоні 0-100%.")
         return discount
 
-    from django.core.paginator import Paginator
-    from django.shortcuts import render
-    from .models import Product, Category
 
     def product_list(request):
         search_query = request.GET.get('q', '')
