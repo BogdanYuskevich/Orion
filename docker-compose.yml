@@ -1,0 +1,11 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - DOCKERIZED=true  # 🔹 Повідомляємо Django, що це Docker
+    volumes:
+      - ./sqlite_data:/app/db.sqlite3  # 💾 Збереження бази між перезапусками
