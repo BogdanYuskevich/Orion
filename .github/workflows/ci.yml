@@ -16,7 +16,12 @@ jobs:
 
     - name: Set up Docker
       run: |
-        docker-compose -f docker-compose.yml build
+        sudo apt update
+        sudo apt install docker-compose -y  # 🛠️ Встановлюємо `docker-compose`
+
+    - name: Build Docker image
+      run: docker-compose -f docker-compose.yml build
+
 
   test:
     runs-on: ubuntu-latest
