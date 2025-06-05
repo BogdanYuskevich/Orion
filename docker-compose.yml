@@ -8,6 +8,7 @@ services:
       - "8000:8000"
     environment:
       - DOCKERIZED=true  # 🔹 Повідомляємо Django, що це Docker
+      - DJANGO_SETTINGS_MODULE=Orion.settings
     volumes:
       - ./sqlite_data:/app/sqlite_data  # ✅ Правильно
 
