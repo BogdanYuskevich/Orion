@@ -35,7 +35,7 @@ def send_order_notification(receiver_email, order, order_items):
         f"Дата: {order.order_date.strftime('%Y-%m-%d %H:%M')}\n\n"
         f"Замовлені товари:\n{items_text}\n"
         f"Загальна сума: {order.total_amount} грн\n\n"
-        "Це тестове повідомлення."
+
     )
 
     msg = MIMEMultipart()

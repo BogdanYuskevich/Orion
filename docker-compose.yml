@@ -8,4 +8,5 @@ services:
     environment:
       - DOCKERIZED=true  # 🔹 Повідомляємо Django, що це Docker
     volumes:
-      - ./sqlite_data:/app/db.sqlite3  # 💾 Збереження бази між перезапусками
+      - ./sqlite_data:/app/sqlite_data  # ✅ Правильно
+

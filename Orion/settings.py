@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/5.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
-
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -23,9 +23,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-jxo!ee4xmm06!hwssbxe)jp%rd%tc@&%p#pv9t44g7_f8(kaf6'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+#DEBUG = True
+DEBUG = False
+ALLOWED_HOSTS = ["localhost", "127.0.0.1", "0.0.0.0"]  #
+STATIC_ROOT = BASE_DIR / "staticfiles"  #
+STATIC_URL = "/static/"
 
-ALLOWED_HOSTS = []
 
 
 # Application definition
@@ -116,12 +119,22 @@ WSGI_APPLICATION = 'Orion.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
+
+if os.getenv("DOCKERIZED") == "true":
+    DB_PATH = "/app/sqlite_data/db.sqlite3"  # 🐳 Docker середовище
+else:
+    DB_PATH = str(BASE_DIR / "db.sqlite3")  # 💻 Локальне середовище
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'NAME': DB_PATH,
     }
 }
+
+
+
+
 
 
 # Password validation
