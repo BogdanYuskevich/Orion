@@ -28,22 +28,33 @@ jobs:
     needs: build
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v2
+      - name: Checkout repository
+        uses: actions/checkout@v2
 
-    - name: Run tests
-      run: |
-        docker-compose up -d
-        docker exec orion-web-1 pytest
+      - name: Set up Docker
+        run: |
+          sudo apt update
+          sudo apt install docker-compose -y  # 🛠️ Встановлюємо `docker-compose` для тестів
+
+      - name: Run tests
+        run: |
+          docker-compose up -d
+          docker exec orion-web-1 pytest
 
   deploy:
     runs-on: ubuntu-latest
-    needs: [build, test]
+    needs: [ build, test ]
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v2
+      - name: Checkout repository
+        uses: actions/checkout@v2
 
-    - name: Deploy application
-      run: |
-        docker-compose up -d
+      - name: Set up Docker
+        run: |
+          sudo apt update
+          sudo apt install docker-compose -y  # 🛠️ Встановлюємо `docker-compose` для деплою
+
+      - name: Deploy application
+        run: |
+          docker-compose up -d
+  
