@@ -39,7 +39,7 @@ jobs:
       - name: Run tests
         run: |
           docker-compose up -d
-          docker exec orion-web-1 pytest
+          docker exec orion-web pytest
 
   deploy:
     runs-on: ubuntu-latest
